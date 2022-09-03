@@ -1,5 +1,7 @@
 package com.github.dreamwill.fsclient;
 
+import lombok.NonNull;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +22,7 @@ public interface FileSystemClient extends Closeable {
      * @return <code>true</code> if create and copy successfully; <code>false</code> if this file already exists
      * @throws IOException If an I/O error occurred
      */
-    boolean createFile(String path, InputStream in) throws IOException;
+    boolean createFile(@NonNull String path, @NonNull InputStream in) throws IOException;
 
     /**
      * Delete the file denoted by this path.
@@ -29,7 +31,7 @@ public interface FileSystemClient extends Closeable {
      * @return <code>true</code> if delete successfully; <code>false</code> if the file does not exist
      * @throws IOException If an I/O error occurred
      */
-    boolean deleteFile(String path) throws IOException;
+    boolean deleteFile(@NonNull String path) throws IOException;
 
     /**
      * Move the file.
@@ -39,7 +41,7 @@ public interface FileSystemClient extends Closeable {
      * @return <code>true</code> if move successfully; <code>false</code> otherwise
      * @throws IOException If an I/O error occurred
      */
-    boolean moveFile(String from, String to) throws IOException;
+    boolean moveFile(@NonNull String from, @NonNull String to) throws IOException;
 
     /**
      * Copy the file.
@@ -49,7 +51,7 @@ public interface FileSystemClient extends Closeable {
      * @return <code>true</code> if copy successfully; <code>false</code> otherwise
      * @throws IOException If an I/O error occurred
      */
-    boolean copyFile(String from, String to) throws IOException;
+    boolean copyFile(@NonNull String from, @NonNull String to) throws IOException;
 
     /**
      * Get an InputStream of the file denoted by this path.
@@ -60,7 +62,7 @@ public interface FileSystemClient extends Closeable {
      * @return an input stream
      * @throws IOException If an I/O error occurred
      */
-    InputStream getInputStream(String path) throws IOException;
+    InputStream getInputStream(@NonNull String path) throws IOException;
 
     /**
      * Get metadata of the file denoted by this path.
@@ -69,5 +71,5 @@ public interface FileSystemClient extends Closeable {
      * @return metadata
      * @throws IOException If an I/O error occurred
      */
-    FileMetadata getFileMetadata(String path) throws IOException;
+    FileMetadata getFileMetadata(@NonNull String path) throws IOException;
 }
