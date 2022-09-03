@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Getter
 @Builder
@@ -11,12 +12,12 @@ public class FileMetadata {
     /**
      * create time
      */
-    private Instant ctime;
+    private Optional<Instant> ctime;
 
     /**
      * modify time
      */
-    private Instant mtime;
+    private Optional<Instant> mtime;
 
     /**
      * file size
