@@ -22,6 +22,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -82,7 +83,7 @@ public class FtpClient implements FileSystemClient {
         }
         log.info("Successfully login to the FTP server.");
 
-        if (!client.setFileType(FTPClient.BINARY_FILE_TYPE)) {
+        if (!client.setFileType(FTP.BINARY_FILE_TYPE)) {
             log.error("Fail to set file type to binary.");
             throw new IOException();
         }
@@ -179,13 +180,12 @@ public class FtpClient implements FileSystemClient {
                 .map(FTPFile::getTimestamp)
                 .map(Calendar::getTimeInMillis)
                 .map(Instant::ofEpochMilli);
-        FileMetadata fileMetadata = FileMetadata.builder()
-                .path(path)
-                .size(ftpFile.getSize())
-                .mtime(mtime)
-                .ctime(mtime)
-                .build();
-        return fileMetadata;
+        return FileMetadata.builder()
+                           .path(path)
+                           .size(ftpFile.getSize())
+                           .mtime(mtime)
+                           .ctime(mtime)
+                           .build();
     }
 
     @Override
@@ -198,18 +198,6 @@ public class FtpClient implements FileSystemClient {
             } finally {
                 client = null;
             }
-        }
-    }
-
-    private void reconnectIfRequired() throws IOException {
-        String pwd = null;
-        try {
-            pwd = client.printWorkingDirectory();
-        } catch (IOException e) {
-            // ignore
-        }
-        if (pwd == null) {
-            connect();
         }
     }
 
