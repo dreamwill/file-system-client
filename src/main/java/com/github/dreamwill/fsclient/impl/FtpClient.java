@@ -38,8 +38,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * RFC 959 defines the File Transfer Protocol (FTP), and it is the only INTERNET STANDARD about FTP.
@@ -48,7 +46,6 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class FtpClient implements FileSystemClient {
-    private static final Pattern FILE_PATH_PATTERN = Pattern.compile("(/[^/\\f\\n\\r\\t\\v\\\\]+)+");
     private FTPClient client;
     private String host;
     private Integer port;
@@ -92,7 +89,6 @@ public class FtpClient implements FileSystemClient {
 
     @Override
     public boolean createFile(@NonNull String path, @NonNull InputStream in) throws IOException {
-        validateFilePath(path);
         String dir = FilenameUtils.getFullPath(path);
         createDirs(dir);
         return client.storeFile(path, in);
@@ -100,7 +96,6 @@ public class FtpClient implements FileSystemClient {
 
     @Override
     public boolean deleteFile(@NonNull String path) throws IOException {
-        validateFilePath(path);
         if (fileExists(path)) {
             return client.deleteFile(path);
         } else {
@@ -110,8 +105,6 @@ public class FtpClient implements FileSystemClient {
 
     @Override
     public boolean moveFile(@NonNull String from, @NonNull String to) throws IOException {
-        validateFilePath(from);
-        validateFilePath(to);
         if (!fileExists(from)) {
             log.error("Source file {} does not exist.", from);
             return false;
@@ -127,8 +120,6 @@ public class FtpClient implements FileSystemClient {
 
     @Override
     public boolean copyFile(@NonNull String from, @NonNull String to) throws IOException {
-        validateFilePath(from);
-        validateFilePath(to);
         if (!fileExists(from)) {
             log.error("Source file {} does not exist.", from);
             return false;
@@ -160,7 +151,6 @@ public class FtpClient implements FileSystemClient {
 
     @Override
     public FileMetadata getFileMetadata(@NonNull String path) throws IOException {
-        validateFilePath(path);
         String dir = FilenameUtils.getFullPath(path);
         if (!client.changeWorkingDirectory(dir)) {
             return null;
@@ -202,7 +192,6 @@ public class FtpClient implements FileSystemClient {
     }
 
     private boolean fileExists(String path) throws IOException {
-        validateFilePath(path);
         String dir = FilenameUtils.getFullPath(path);
         if (client.changeWorkingDirectory(dir)) {
             String name = FilenameUtils.getName(path);
@@ -227,16 +216,5 @@ public class FtpClient implements FileSystemClient {
             createDirs(parent);
             return client.makeDirectory(path);
         }
-    }
-
-    private void validateFilePath(String path) {
-        if (isIllegalFilePath(path)) {
-            log.warn("Illegal file path: {}.", path);
-        }
-    }
-
-    private boolean isIllegalFilePath(String path) {
-        Matcher m = FILE_PATH_PATTERN.matcher(path);
-        return !m.matches();
     }
 }
