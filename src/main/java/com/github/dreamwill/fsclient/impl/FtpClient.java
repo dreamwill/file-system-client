@@ -89,6 +89,9 @@ public class FtpClient implements FileSystemClient {
 
     @Override
     public boolean createFile(@NonNull String path, @NonNull InputStream in) throws IOException {
+        if (fileExists(path)) {
+            return false;
+        }
         String dir = FilenameUtils.getFullPath(path);
         createDirs(dir);
         return client.storeFile(path, in);
@@ -114,6 +117,9 @@ public class FtpClient implements FileSystemClient {
             if (!deleteFile(to)) {
                 return false;
             }
+        } else {
+            // make sure necessary dirs exist
+            createDirs(FilenameUtils.getFullPath(to));
         }
         return client.rename(from, to);
     }
@@ -129,6 +135,9 @@ public class FtpClient implements FileSystemClient {
             if (!deleteFile(to)) {
                 return false;
             }
+        } else {
+            // make sure necessary dirs exist
+            createDirs(FilenameUtils.getFullPath(to));
         }
         File tempFile = new File(FileUtils.getTempDirectory(), FilenameUtils.getName(from));
         FileUtils.copyInputStreamToFile(getInputStream(from), tempFile);
