@@ -57,11 +57,11 @@ public class FtpClient implements FileSystemClient {
         this.port = port;
         this.username = username;
         this.password = password;
-        client = new FTPClient();
     }
 
     @Override
     public void connect() throws IOException {
+        client = new FTPClient();
         // Detect whether the FTP server supports UTF8 or not.
         client.setAutodetectUTF8(true);
 
@@ -141,6 +141,8 @@ public class FtpClient implements FileSystemClient {
         }
         File tempFile = new File(FileUtils.getTempDirectory(), FilenameUtils.getName(from));
         FileUtils.copyInputStreamToFile(getInputStream(from), tempFile);
+        close();
+        connect();
         try (InputStream in = new FileInputStream(tempFile)) {
             if (!createFile(to, in)) {
                 return false;
