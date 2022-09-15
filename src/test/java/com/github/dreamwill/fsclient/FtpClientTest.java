@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 class FtpClientTest {
     FileSystemClient client;
+    static Integer port;
 
     @BeforeAll
     @DisplayName("Build a virtual FTP server.")
@@ -36,12 +37,17 @@ class FtpClientTest {
         fileSystem.add(new FileEntry("/home/tom/file4.txt", "abcdef 1234567890"));
         fakeFtpServer.setFileSystem(fileSystem);
 
+        // choose random port
+        fakeFtpServer.setServerControlPort(0);
+
         fakeFtpServer.start();
+
+        port = fakeFtpServer.getServerControlPort();
     }
 
     @BeforeEach
     public void setUp() throws IOException {
-        client = new FtpClient("127.0.0.1", 21, "tom", "123456");
+        client = new FtpClient("127.0.0.1", port, "tom", "123456");
         client.connect();
     }
 
