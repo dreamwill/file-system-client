@@ -1,12 +1,26 @@
+/*
+ * Copyright 2022 许王伟
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dreamwill.fsclient;
 
 import com.github.dreamwill.fsclient.impl.FtpClient;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.filesystem.DirectoryEntry;
@@ -14,27 +28,23 @@ import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
-class FtpClientTest {
-    FileSystemClient client;
+class FtpClientTest extends BaseClientTest {
     static Integer port;
 
     @BeforeAll
     @DisplayName("Build a virtual FTP server.")
     public static void prepareEnv() {
         FakeFtpServer fakeFtpServer = new FakeFtpServer();
-        fakeFtpServer.addUserAccount(new UserAccount("tom", "123456", "/home/tom"));
+        fakeFtpServer.addUserAccount(new UserAccount("dreamwill", "123456", "/dreamwill"));
 
         FileSystem fileSystem = new UnixFakeFileSystem();
-        fileSystem.add(new DirectoryEntry("/home/tom"));
-        fileSystem.add(new FileEntry("/home/tom/file1.txt", "abcdef 1234567890"));
-        fileSystem.add(new FileEntry("/home/tom/file2.txt", "abcdef 1234567890"));
-        fileSystem.add(new FileEntry("/home/tom/file3.txt", "abcdef 1234567890"));
-        fileSystem.add(new FileEntry("/home/tom/file4.txt", "abcdef 1234567890"));
+        fileSystem.add(new DirectoryEntry("/dreamwill"));
+        fileSystem.add(new FileEntry(already_exist, "abcdef 1234567890"));
+        fileSystem.add(new FileEntry(to_be_delete, "abcdef 1234567890"));
+        fileSystem.add(new FileEntry(copy_source, "abcdef 1234567890"));
+        fileSystem.add(new FileEntry(move_source, "abcdef 1234567890"));
         fakeFtpServer.setFileSystem(fileSystem);
 
         // choose random port
@@ -47,65 +57,12 @@ class FtpClientTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        client = new FtpClient("127.0.0.1", port, "tom", "123456");
+        client = new FtpClient("127.0.0.1", port, "dreamwill", "123456");
         client.connect();
     }
 
     @AfterEach
     public void tearDown() throws IOException {
         client.close();
-    }
-
-    @Test
-    void should_create_a_file() throws IOException {
-        try (InputStream in = new ByteArrayInputStream("abcdef 1234567890".getBytes(StandardCharsets.ISO_8859_1))) {
-            boolean result = client.createFile("/home/tom/3.xlsx", in);
-            Assertions.assertThat(result).isTrue();
-        }
-    }
-
-    @Test
-    void should_return_false_while_file_already_exists() throws IOException {
-        try (InputStream in = new ByteArrayInputStream("abcdef 1234567890".getBytes(StandardCharsets.ISO_8859_1))) {
-            boolean result = client.createFile("/home/tom/file1.txt", in);
-            Assertions.assertThat(result).isFalse();
-        }
-    }
-
-    @Test
-    void should_delete_successfully() throws IOException {
-        boolean result = client.deleteFile("/home/tom/file2.txt");
-        Assertions.assertThat(result).isTrue();
-    }
-
-    @Test
-    void should_return_false_while_file_does_not_exist() throws IOException {
-        boolean result = client.deleteFile("/home/tom/air.txt");
-        Assertions.assertThat(result).isFalse();
-    }
-
-    @Test
-    void should_move_file_successfully() throws IOException {
-        boolean result = client.moveFile("/home/tom/file3.txt", "/home/tom/b/1.txt");
-        Assertions.assertThat(result).isTrue();
-    }
-
-    @Test
-    void should_copy_file_successfully() throws IOException {
-        boolean result = client.copyFile("/home/tom/file4.txt", "/home/tom/z/abc.txt");
-        Assertions.assertThat(result).isTrue();
-    }
-
-    @Test
-    void should_get_input_stream() throws IOException {
-        try (InputStream in = client.getInputStream("/home/tom/file1.txt")) {
-            Assertions.assertThat(in).isNotNull();
-        }
-    }
-
-    @Test
-    void should_get_file_metadata() throws IOException {
-        FileMetadata fileMetadata = client.getFileMetadata("/home/tom/file1.txt");
-        Assertions.assertThat(fileMetadata).isNotNull();
     }
 }
