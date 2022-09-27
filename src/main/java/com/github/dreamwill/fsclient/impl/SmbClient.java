@@ -80,13 +80,16 @@ public class SmbClient implements FileSystemClient {
 
     @Override
     public boolean createFile(@NonNull String path, @NonNull InputStream in) throws IOException {
+        if (fileExists(path)) {
+            return false;
+        }
         String dir = FilenameUtils.getFullPathNoEndSeparator(path);
         createDirs(dir);
 
         try (DiskShare diskShare = getDiskShare(path)) {
             String filePath = cutShareName(path, diskShare);
             Set<AccessMask> accessMask = new HashSet<>();
-            accessMask.add(AccessMask.GENERIC_ALL);
+            accessMask.add(AccessMask.GENERIC_WRITE);
             Set<FileAttributes> attributes = new HashSet<>();
             attributes.add(FileAttributes.FILE_ATTRIBUTE_NORMAL);
             Set<SMB2CreateOptions> createOptions = new HashSet<>();
@@ -131,6 +134,9 @@ public class SmbClient implements FileSystemClient {
             if (!deleteFile(to)) {
                 return false;
             }
+        } else {
+            // make sure necessary dirs exist
+            createDirs(FilenameUtils.getFullPathNoEndSeparator(to));
         }
         DiskShare diskShare = getDiskShare(from);
         String filePath = cutShareName(from, diskShare);
@@ -161,25 +167,28 @@ public class SmbClient implements FileSystemClient {
             if (!deleteFile(to)) {
                 return false;
             }
+        } else {
+            // make sure necessary dirs exist
+            createDirs(FilenameUtils.getFullPathNoEndSeparator(to));
         }
         DiskShare sourceDiskShare = getDiskShare(from);
         DiskShare targetDiskShare = getDiskShare(to);
         try (
                 com.hierynomus.smbj.share.File sourceFile = sourceDiskShare.openFile(
                         cutShareName(from, sourceDiskShare),
-                        EnumSet.of(AccessMask.DELETE, AccessMask.GENERIC_WRITE),
+                        EnumSet.of(AccessMask.FILE_READ_DATA),
                         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
                         SMB2ShareAccess.ALL,
                         SMB2CreateDisposition.FILE_OPEN,
                         null
                 );
-                com.hierynomus.smbj.share.File targetFile = sourceDiskShare.openFile(
+                com.hierynomus.smbj.share.File targetFile = targetDiskShare.openFile(
                         cutShareName(to, targetDiskShare),
-                        EnumSet.of(AccessMask.DELETE, AccessMask.GENERIC_WRITE),
+                        EnumSet.of(AccessMask.FILE_WRITE_DATA),
                         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
                         SMB2ShareAccess.ALL,
-                        SMB2CreateDisposition.FILE_OPEN,
-                        null
+                        SMB2CreateDisposition.FILE_OVERWRITE_IF,
+                        EnumSet.of(SMB2CreateOptions.FILE_RANDOM_ACCESS)
                 )
         ) {
             sourceFile.remoteCopyTo(targetFile);
@@ -191,6 +200,9 @@ public class SmbClient implements FileSystemClient {
 
     @Override
     public InputStream getInputStream(@NonNull String path) throws IOException {
+        if (!fileExists(path)) {
+            throw new IOException();
+        }
         DiskShare diskShare = getDiskShare(path);
         String filePath = cutShareName(path, diskShare);
         com.hierynomus.smbj.share.File remoteFile = diskShare.openFile(
@@ -206,6 +218,9 @@ public class SmbClient implements FileSystemClient {
 
     @Override
     public FileMetadata getFileMetadata(@NonNull String path) throws IOException {
+        if (!fileExists(path)) {
+            return null;
+        }
         DiskShare diskShare = getDiskShare(path);
         String filePath = cutShareName(path, diskShare);
         FileAllInformation fileAllInformation;
@@ -262,13 +277,17 @@ public class SmbClient implements FileSystemClient {
 
     private boolean fileExists(String path) throws IOException {
         try (DiskShare diskShare = getDiskShare(path)) {
-            String filePath = cutShareName(path, diskShare);
-            return diskShare.fileExists(filePath);
+            if (diskShare.folderExists(cutShareName(FilenameUtils.getFullPathNoEndSeparator(path), diskShare))) {
+                String filePath = cutShareName(path, diskShare);
+                return diskShare.fileExists(filePath);
+            } else {
+                return false;
+            }
         }
     }
 
     private static String cutShareName(String path, DiskShare diskShare) {
         String shareName = diskShare.getSmbPath().getShareName();
-        return path.substring(shareName.length() + 2);
+        return path.substring(shareName.length() + 1);
     }
 }

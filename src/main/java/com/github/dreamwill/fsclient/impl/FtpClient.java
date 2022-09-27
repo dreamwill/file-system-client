@@ -192,13 +192,7 @@ public class FtpClient implements FileSystemClient {
     @Override
     public void close() throws IOException {
         if (client != null) {
-            try {
-                client.disconnect();
-            } catch (IOException e) {
-                // ignore
-            } finally {
-                client = null;
-            }
+            client.disconnect();
         }
     }
 
