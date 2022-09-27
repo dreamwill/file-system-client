@@ -25,7 +25,7 @@ jobs:
       - name: Pull docker image dreamwill/rockylinux-samba
         run: docker pull dreamwill/rockylinux-samba
       - name: Stop running container samba
-        run: docker stop samba
+        run: docker stop samba || true
       - name: Start container samba
         run: docker run -d -p 44500:445 --rm --name samba dreamwill/rockylinux-samba
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
