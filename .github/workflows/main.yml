@@ -28,6 +28,12 @@ jobs:
         run: docker stop samba || true
       - name: Start container samba
         run: docker run -d -p 44500:445 --rm --name samba dreamwill/rockylinux-samba
+      - name: Pull docker image dreamwill/rockylinux-sftp
+        run: docker pull dreamwill/rockylinux-sftp
+      - name: Stop running container sftp
+        run: docker stop sftp || true
+      - name: Start container sftp
+        run: docker run -d -p 22000:22 --rm --name sftp dreamwill/rockylinux-sftp
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
