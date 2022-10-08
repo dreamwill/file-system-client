@@ -92,9 +92,29 @@ abstract class BaseClientTest {
     }
 
     @Test
+    void should_throw_null_pointer_exception_while_move_file_with_any_null_parameter() {
+        Assertions.assertThatNullPointerException().isThrownBy(() -> client.moveFile(null, null));
+        Assertions.assertThatNullPointerException().isThrownBy(() -> client.moveFile(move_source, null));
+        Assertions.assertThatNullPointerException().isThrownBy(() -> client.moveFile(null, move_target));
+    }
+
+    @Test
     void should_copy_file_successfully() throws IOException {
         boolean result = client.copyFile(copy_source, copy_target);
         Assertions.assertThat(result).isTrue();
+    }
+
+    @Test
+    void should_return_false_while_copy_file_and_source_file_does_not_exist() throws IOException {
+        boolean result = client.copyFile(never_exist, copy_target);
+        Assertions.assertThat(result).isFalse();
+    }
+
+    @Test
+    void should_throw_null_pointer_exception_while_copy_file_with_any_null_parameter() {
+        Assertions.assertThatNullPointerException().isThrownBy(() -> client.copyFile(null, null));
+        Assertions.assertThatNullPointerException().isThrownBy(() -> client.copyFile(copy_source, null));
+        Assertions.assertThatNullPointerException().isThrownBy(() -> client.copyFile(null, copy_target));
     }
 
     @Test
