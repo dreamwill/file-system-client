@@ -130,8 +130,8 @@ abstract class BaseClientTest {
     }
 
     @Test
-    void should_throw_io_exception_while_get_input_stream_with_non_existent_file() {
-        Assertions.assertThatIOException().isThrownBy(() -> client.getInputStream(never_exist));
+    void should_return_null_while_get_input_stream_with_non_existent_file() throws IOException {
+        Assertions.assertThat(client.getInputStream(never_exist)).isNull();
     }
 
     @Test

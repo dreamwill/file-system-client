@@ -152,7 +152,7 @@ public class SftpClient implements FileSystemClient {
     @Override
     public InputStream getInputStream(@NonNull String path) throws IOException {
         if (!fileExists(path)) {
-            throw new IOException();
+            return null;
         }
         try {
             return client.get(path);

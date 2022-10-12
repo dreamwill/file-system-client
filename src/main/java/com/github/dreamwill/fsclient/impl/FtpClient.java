@@ -155,7 +155,7 @@ public class FtpClient implements FileSystemClient {
     @Override
     public InputStream getInputStream(@NonNull String path) throws IOException {
         if (!fileExists(path)) {
-            throw new IOException();
+            return null;
         }
         return client.retrieveFileStream(path);
     }

@@ -75,7 +75,7 @@ public interface FileSystemClient extends Closeable {
      * Note: The input stream should be closed after use.
      *
      * @param path full file path
-     * @return an input stream
+     * @return an input stream, or null if the file is not present
      * @throws IOException If an I/O error occurred
      */
     InputStream getInputStream(@NonNull String path) throws IOException;
@@ -84,7 +84,7 @@ public interface FileSystemClient extends Closeable {
      * Get metadata of the file denoted by this path.
      *
      * @param path full file path
-     * @return metadata
+     * @return metadata, or null if the file is not present
      * @throws IOException If an I/O error occurred
      */
     FileMetadata getFileMetadata(@NonNull String path) throws IOException;

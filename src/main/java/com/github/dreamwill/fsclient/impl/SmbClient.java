@@ -201,7 +201,7 @@ public class SmbClient implements FileSystemClient {
     @Override
     public InputStream getInputStream(@NonNull String path) throws IOException {
         if (!fileExists(path)) {
-            throw new IOException();
+            return null;
         }
         DiskShare diskShare = getDiskShare(path);
         String filePath = cutShareName(path, diskShare);
