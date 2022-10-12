@@ -101,22 +101,22 @@ public class SftpClient implements FileSystemClient {
     }
 
     @Override
-    public boolean moveFile(@NonNull String from, @NonNull String to) throws IOException {
-        if (!fileExists(from)) {
-            log.error("Source file {} does not exist.", from);
+    public boolean moveFile(@NonNull String source, @NonNull String target) throws IOException {
+        if (!fileExists(source)) {
+            log.error("Source file {} does not exist.", source);
             return false;
         }
-        if (fileExists(to)) {
-            log.info("Target file {} already exists. Prepare to delete it.", to);
-            if (!deleteFile(to)) {
+        if (fileExists(target)) {
+            log.info("Target file {} already exists. Prepare to delete it.", target);
+            if (!deleteFile(target)) {
                 return false;
             }
         } else {
             // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPath(to));
+            createDirs(FilenameUtils.getFullPath(target));
         }
         try {
-            client.rename(from, to);
+            client.rename(source, target);
             return true;
         } catch (SftpException e) {
             throw new IOException(e);
@@ -124,24 +124,24 @@ public class SftpClient implements FileSystemClient {
     }
 
     @Override
-    public boolean copyFile(@NonNull String from, @NonNull String to) throws IOException {
-        if (!fileExists(from)) {
-            log.error("Source file {} does not exist.", from);
+    public boolean copyFile(@NonNull String source, @NonNull String target) throws IOException {
+        if (!fileExists(source)) {
+            log.error("Source file {} does not exist.", source);
             return false;
         }
-        if (fileExists(to)) {
-            log.info("Target file {} already exists. Prepare to delete it.", to);
-            if (!deleteFile(to)) {
+        if (fileExists(target)) {
+            log.info("Target file {} already exists. Prepare to delete it.", target);
+            if (!deleteFile(target)) {
                 return false;
             }
         } else {
             // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPath(to));
+            createDirs(FilenameUtils.getFullPath(target));
         }
-        File tempFile = new File(FileUtils.getTempDirectory(), FilenameUtils.getName(from));
-        FileUtils.copyInputStreamToFile(getInputStream(from), tempFile);
+        File tempFile = new File(FileUtils.getTempDirectory(), FilenameUtils.getName(source));
+        FileUtils.copyInputStreamToFile(getInputStream(source), tempFile);
         try (InputStream in = new FileInputStream(tempFile)) {
-            if (!createFile(to, in)) {
+            if (!createFile(target, in)) {
                 return false;
             }
         }

@@ -52,22 +52,22 @@ public interface FileSystemClient extends Closeable {
     /**
      * Move the file.
      *
-     * @param from source file path
-     * @param to   target file path
+     * @param source source file path
+     * @param target target file path
      * @return <code>true</code> if move successfully; <code>false</code> otherwise
      * @throws IOException If an I/O error occurred
      */
-    boolean moveFile(@NonNull String from, @NonNull String to) throws IOException;
+    boolean moveFile(@NonNull String source, @NonNull String target) throws IOException;
 
     /**
      * Copy the file.
      *
-     * @param from source file path
-     * @param to   target file path
+     * @param source source file path
+     * @param target target file path
      * @return <code>true</code> if copy successfully; <code>false</code> otherwise
      * @throws IOException If an I/O error occurred
      */
-    boolean copyFile(@NonNull String from, @NonNull String to) throws IOException;
+    boolean copyFile(@NonNull String source, @NonNull String target) throws IOException;
 
     /**
      * Get an InputStream of the file denoted by this path.

@@ -124,22 +124,22 @@ public class SmbClient implements FileSystemClient {
     }
 
     @Override
-    public boolean moveFile(@NonNull String from, @NonNull String to) throws IOException {
-        if (!fileExists(from)) {
-            log.error("Source file {} does not exist.", from);
+    public boolean moveFile(@NonNull String source, @NonNull String target) throws IOException {
+        if (!fileExists(source)) {
+            log.error("Source file {} does not exist.", source);
             return false;
         }
-        if (fileExists(to)) {
-            log.info("Target file {} already exists. Prepare to delete it.", to);
-            if (!deleteFile(to)) {
+        if (fileExists(target)) {
+            log.info("Target file {} already exists. Prepare to delete it.", target);
+            if (!deleteFile(target)) {
                 return false;
             }
         } else {
             // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPathNoEndSeparator(to));
+            createDirs(FilenameUtils.getFullPathNoEndSeparator(target));
         }
-        DiskShare diskShare = getDiskShare(from);
-        String filePath = cutShareName(from, diskShare);
+        DiskShare diskShare = getDiskShare(source);
+        String filePath = cutShareName(source, diskShare);
         try (
                 com.hierynomus.smbj.share.File file = diskShare.openFile(
                         filePath,
@@ -150,32 +150,32 @@ public class SmbClient implements FileSystemClient {
                         null
                 )
         ) {
-            String newName = cutShareName(to, getDiskShare(to)).replace("/", "\\");
+            String newName = cutShareName(target, getDiskShare(target)).replace("/", "\\");
             file.rename(newName, true);
         }
         return true;
     }
 
     @Override
-    public boolean copyFile(@NonNull String from, @NonNull String to) throws IOException {
-        if (!fileExists(from)) {
-            log.error("Source file {} does not exist.", from);
+    public boolean copyFile(@NonNull String source, @NonNull String target) throws IOException {
+        if (!fileExists(source)) {
+            log.error("Source file {} does not exist.", source);
             return false;
         }
-        if (fileExists(to)) {
-            log.info("Target file {} already exists. Prepare to delete it.", to);
-            if (!deleteFile(to)) {
+        if (fileExists(target)) {
+            log.info("Target file {} already exists. Prepare to delete it.", target);
+            if (!deleteFile(target)) {
                 return false;
             }
         } else {
             // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPathNoEndSeparator(to));
+            createDirs(FilenameUtils.getFullPathNoEndSeparator(target));
         }
-        DiskShare sourceDiskShare = getDiskShare(from);
-        DiskShare targetDiskShare = getDiskShare(to);
+        DiskShare sourceDiskShare = getDiskShare(source);
+        DiskShare targetDiskShare = getDiskShare(target);
         try (
                 com.hierynomus.smbj.share.File sourceFile = sourceDiskShare.openFile(
-                        cutShareName(from, sourceDiskShare),
+                        cutShareName(source, sourceDiskShare),
                         EnumSet.of(AccessMask.FILE_READ_DATA),
                         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
                         SMB2ShareAccess.ALL,
@@ -183,7 +183,7 @@ public class SmbClient implements FileSystemClient {
                         null
                 );
                 com.hierynomus.smbj.share.File targetFile = targetDiskShare.openFile(
-                        cutShareName(to, targetDiskShare),
+                        cutShareName(target, targetDiskShare),
                         EnumSet.of(AccessMask.FILE_WRITE_DATA),
                         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
                         SMB2ShareAccess.ALL,
