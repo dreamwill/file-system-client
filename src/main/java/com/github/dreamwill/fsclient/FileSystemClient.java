@@ -54,7 +54,7 @@ public interface FileSystemClient extends Closeable {
      *
      * @param source source file path
      * @param target target file path
-     * @return <code>true</code> if move successfully; <code>false</code> otherwise
+     * @return <code>true</code> if move successfully; <code>false</code> if target file exists
      * @throws IOException If an I/O error occurred
      */
     boolean moveFile(@NonNull String source, @NonNull String target) throws IOException;
@@ -64,7 +64,7 @@ public interface FileSystemClient extends Closeable {
      *
      * @param source source file path
      * @param target target file path
-     * @return <code>true</code> if copy successfully; <code>false</code> otherwise
+     * @return <code>true</code> if copy successfully; <code>false</code> if target file exists
      * @throws IOException If an I/O error occurred
      */
     boolean copyFile(@NonNull String source, @NonNull String target) throws IOException;

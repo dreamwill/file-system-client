@@ -107,10 +107,8 @@ public class SftpClient implements FileSystemClient {
             return false;
         }
         if (fileExists(target)) {
-            log.info("Target file {} already exists. Prepare to delete it.", target);
-            if (!deleteFile(target)) {
-                return false;
-            }
+            log.error("Target file {} already exists.", target);
+            return false;
         } else {
             // make sure necessary dirs exist
             createDirs(FilenameUtils.getFullPath(target));
@@ -130,10 +128,8 @@ public class SftpClient implements FileSystemClient {
             return false;
         }
         if (fileExists(target)) {
-            log.info("Target file {} already exists. Prepare to delete it.", target);
-            if (!deleteFile(target)) {
-                return false;
-            }
+            log.error("Target file {} already exists.", target);
+            return false;
         } else {
             // make sure necessary dirs exist
             createDirs(FilenameUtils.getFullPath(target));

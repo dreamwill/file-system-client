@@ -99,6 +99,12 @@ abstract class BaseClientTest {
     }
 
     @Test
+    void should_return_false_while_move_file_and_target_file_already_exists() throws IOException {
+        boolean result = client.moveFile(move_source, already_exist);
+        Assertions.assertThat(result).isFalse();
+    }
+
+    @Test
     void should_copy_file_successfully() throws IOException {
         boolean result = client.copyFile(copy_source, copy_target);
         Assertions.assertThat(result).isTrue();
@@ -115,6 +121,12 @@ abstract class BaseClientTest {
         Assertions.assertThatNullPointerException().isThrownBy(() -> client.copyFile(null, null));
         Assertions.assertThatNullPointerException().isThrownBy(() -> client.copyFile(copy_source, null));
         Assertions.assertThatNullPointerException().isThrownBy(() -> client.copyFile(null, copy_target));
+    }
+
+    @Test
+    void should_return_false_while_copy_file_and_target_file_already_exists() throws IOException {
+        boolean result = client.copyFile(copy_source, already_exist);
+        Assertions.assertThat(result).isFalse();
     }
 
     @Test
