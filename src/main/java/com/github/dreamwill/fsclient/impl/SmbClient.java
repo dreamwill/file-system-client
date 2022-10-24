@@ -125,16 +125,8 @@ public class SmbClient implements FileSystemClient {
 
     @Override
     public boolean moveFile(@NonNull String source, @NonNull String target) throws IOException {
-        if (!fileExists(source)) {
-            log.error("Source file {} does not exist.", source);
+        if (validateBeforeMove(source, target)) {
             return false;
-        }
-        if (fileExists(target)) {
-            log.error("Target file {} already exists.", target);
-            return false;
-        } else {
-            // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPathNoEndSeparator(target));
         }
         DiskShare diskShare = getDiskShare(source);
         String filePath = cutShareName(source, diskShare);
@@ -156,16 +148,8 @@ public class SmbClient implements FileSystemClient {
 
     @Override
     public boolean copyFile(@NonNull String source, @NonNull String target) throws IOException {
-        if (!fileExists(source)) {
-            log.error("Source file {} does not exist.", source);
+        if (validateBeforeMove(source, target)) {
             return false;
-        }
-        if (fileExists(target)) {
-            log.error("Target file {} already exists.", target);
-            return false;
-        } else {
-            // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPathNoEndSeparator(target));
         }
         DiskShare sourceDiskShare = getDiskShare(source);
         DiskShare targetDiskShare = getDiskShare(target);
@@ -285,5 +269,19 @@ public class SmbClient implements FileSystemClient {
     private static String cutShareName(String path, DiskShare diskShare) {
         String shareName = diskShare.getSmbPath().getShareName();
         return path.substring(shareName.length() + 1);
+    }
+
+    private boolean validateBeforeMove(final String source, final String target) throws IOException {
+        if (!fileExists(source)) {
+            log.error("Source file {} does not exist.", source);
+            return true;
+        }
+        if (fileExists(target)) {
+            log.error("Target file {} already exists.", target);
+            return true;
+        }
+        // make sure necessary dirs exist
+        createDirs(FilenameUtils.getFullPathNoEndSeparator(target));
+        return false;
     }
 }

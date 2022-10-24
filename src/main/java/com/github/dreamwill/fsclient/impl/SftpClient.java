@@ -102,16 +102,8 @@ public class SftpClient implements FileSystemClient {
 
     @Override
     public boolean moveFile(@NonNull String source, @NonNull String target) throws IOException {
-        if (!fileExists(source)) {
-            log.error("Source file {} does not exist.", source);
+        if (validateBeforeMove(source, target)) {
             return false;
-        }
-        if (fileExists(target)) {
-            log.error("Target file {} already exists.", target);
-            return false;
-        } else {
-            // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPath(target));
         }
         try {
             client.rename(source, target);
@@ -123,16 +115,8 @@ public class SftpClient implements FileSystemClient {
 
     @Override
     public boolean copyFile(@NonNull String source, @NonNull String target) throws IOException {
-        if (!fileExists(source)) {
-            log.error("Source file {} does not exist.", source);
+        if (validateBeforeMove(source, target)) {
             return false;
-        }
-        if (fileExists(target)) {
-            log.error("Target file {} already exists.", target);
-            return false;
-        } else {
-            // make sure necessary dirs exist
-            createDirs(FilenameUtils.getFullPath(target));
         }
         File tempFile = new File(FileUtils.getTempDirectory(), FilenameUtils.getName(source));
         FileUtils.copyInputStreamToFile(getInputStream(source), tempFile);
@@ -227,5 +211,19 @@ public class SftpClient implements FileSystemClient {
                 throw new IOException(e);
             }
         }
+    }
+
+    private boolean validateBeforeMove(final String source, final String target) throws IOException {
+        if (!fileExists(source)) {
+            log.error("Source file {} does not exist.", source);
+            return true;
+        }
+        if (fileExists(target)) {
+            log.error("Target file {} already exists.", target);
+            return true;
+        }
+        // make sure necessary dirs exist
+        createDirs(FilenameUtils.getFullPath(target));
+        return false;
     }
 }
